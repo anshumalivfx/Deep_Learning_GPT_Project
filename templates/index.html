@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CustomGPT</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <section>
+        <div class="container">
+            <div id="scene">
+                <div class="layer"></div>
+            </div>
+        </div>
+        <div class="generate">
+            <h2>Generate Shakespear plays</h2>
+            <form action="/generate" method="post">
+                <div class="inputBox">
+                    <input type="text" placeholder="Enter Context" name="context" />
+                </div>
+                <div class="inputBox">
+                    <input type="button" value="Generate" id="btn" onclick="generateResponse()" />
+                </div>
+            </form>
+            
+            <h2>Generated Response:</h2>
+            <p class="generatedText" id="generatedText"></p>
+
+            <script>
+                function generateResponse() {
+                    document.getElementById('generatedText').innerText = '';
+                    var context = document.querySelector('input[name="context"]').value;
+            
+                    // Make an AJAX request to your Flask endpoint
+                    var xhr = new XMLHttpRequest();
+                    xhr.open("POST", "/generate", true);
+                    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                    xhr.onreadystatechange = function () {
+                        if (xhr.readyState == 4 && xhr.status == 200) {
+                            var words = xhr.responseText.split(' ');
+                            var intervalId = setInterval(function () {
+                                if (index < words.length) {
+                                    var trimmedWord = words[index];
+                                    // space between words
+                                    if (trimmedWord.length > 0) {
+                                        trimmedWord = ' ' + trimmedWord;
+                                    }
+                                    document.getElementById('generatedText').innerText += trimmedWord;
+                                    index++;
+                                } else {
+                                    clearInterval(intervalId);
+                                }
+                            }, 50);
+
+                            // Display words one by one with a space, ensuring no leading or trailing spaces
+                            var index = 0;
+                             // Adjust the delay as needed
+                        }
+                    };
+                    xhr.send("context=" + encodeURIComponent(context));
+                }
+            </script>
+        </div>
+    </section>
+</body>
+</html>

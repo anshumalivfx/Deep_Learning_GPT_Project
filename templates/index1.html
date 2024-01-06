@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CustomGPT</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
+  </head>
+  <body>
+    <section>
+      <div class="container">
+        <div id="scene">
+          <div class="layer"></div>
+        </div>
+      </div>
+      <div class="generate">
+        <h2>Generate Shakespear plays</h2>
+        <form>
+          <div class="inputBox">
+            <input type="text" placeholder="Enter Context" name="context" />
+          </div>
+          <div class="inputBox">
+            <input type="submit" value="Generate" id="btn" onclick="generateResponse()" />
+          </div>
+        </form>
+
+        {% if generated_text %}
+        <h2>Generated Response:</h2>
+        <p class="generatedText" id="generatedText"></p>
+        <script>
+            function generateResponse() {
+                var context = document.querySelector('input[name="context"]').value;
+
+                // Make an AJAX request to your Flask endpoint
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", "/generate", true);
+                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == 4 && xhr.status == 200) {
+                        var words = xhr.responseText.split(' ');
+
+                        // Display words one by one with a delay
+                        var index = 0;
+                        var intervalId = setInterval(function () {
+                            if (index < words.length) {
+                                document.getElementById('generatedText').innerText += words[index] + ' ';
+                                index++;
+                            } else {
+                                clearInterval(intervalId);
+                            }
+                        }, 300); // Adjust the delay as needed
+                    }
+                };
+                xhr.send("context=" + encodeURIComponent(context));
+            }
+            
+            // Call the function when the page loads
+            generateResponse();
+        </script>
+        {% endif %}
+      </div>
+
+    </section>
+
+  </body>
+</html>
